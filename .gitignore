@@ -1,3 +1,8 @@
+# JetBrains / IntelliJ / WebStorm IDE settings
+.idea/
+*.iml
+out/
+
 # Logs
 logs
 *.log
