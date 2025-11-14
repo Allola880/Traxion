@@ -13,7 +13,7 @@ USE traxion;
 CREATE TABLE countries (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    iso_code CHAR(2) NOT NULL UNIQUE   -- da el howa US, EG keda
+    iso_code CHAR(2) NOT NULL UNIQUE
 );
 
 CREATE TABLE package_types (
