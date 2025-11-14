@@ -1,0 +1,124 @@
+DROP DATABASE IF EXISTS traxion;
+
+CREATE DATABASE traxion CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+USE traxion;
+
+CREATE TABLE countries (
+                           id INT AUTO_INCREMENT PRIMARY KEY,
+                           name VARCHAR(100) NOT NULL,
+                           iso_code CHAR(2) NOT NULL UNIQUE
+);
+
+CREATE TABLE package_types (
+                               id INT AUTO_INCREMENT PRIMARY KEY,
+                               type_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE shipping_modes (
+                                id INT AUTO_INCREMENT PRIMARY KEY,
+                                mode_name VARCHAR(50) NOT NULL UNIQUE
+);
+
+
+
+CREATE TABLE shippers (
+                          id INT AUTO_INCREMENT PRIMARY KEY,
+                          name VARCHAR(150) NOT NULL,
+                          account_number CHAR(6) UNIQUE,
+                          address VARCHAR(255)
+);
+
+
+CREATE TABLE receivers (
+                           id INT AUTO_INCREMENT PRIMARY KEY,
+                           name VARCHAR(150) NOT NULL,
+                           address VARCHAR(255)
+);
+
+CREATE TABLE shipments (
+                           id INT AUTO_INCREMENT PRIMARY KEY,
+                           polica CHAR(8) NOT NULL UNIQUE,   -- e.g. AB123456
+                           shipper_id INT NOT NULL,
+                           receiver_id INT NOT NULL,
+                           content VARCHAR(255),
+                           actual_weight DECIMAL(6,2),
+                           volumetric_weight DECIMAL(6,2),
+                           package_type_id INT,
+                           piece_count INT DEFAULT 1,
+                           origin_country_id INT NOT NULL,
+                           destination_country_id INT NOT NULL,
+                           shipping_mode_id INT,
+                           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+                           FOREIGN KEY (shipper_id) REFERENCES shippers(id),
+                           FOREIGN KEY (receiver_id) REFERENCES receivers(id),
+                           FOREIGN KEY (origin_country_id) REFERENCES countries(id),
+                           FOREIGN KEY (destination_country_id) REFERENCES countries(id),
+                           FOREIGN KEY (package_type_id) REFERENCES package_types(id),
+                           FOREIGN KEY (shipping_mode_id) REFERENCES shipping_modes(id)
+);
+
+-- INSERT DATA
+
+INSERT INTO countries (name, iso_code) VALUES
+                                           ('China', 'CN'),
+                                           ('Egypt', 'EG'),
+                                           ('United Arab Emirates', 'AE'),
+                                           ('Saudi Arabia', 'SA'),
+                                           ('Germany', 'DE'),
+                                           ('India', 'IN');
+
+INSERT INTO package_types (type_name) VALUES
+                                          ('Box'), ('Envelope'), ('Crate'), ('Pallet');
+
+INSERT INTO shipping_modes (mode_name) VALUES
+                                           ('Air'), ('Sea'), ('Road'), ('Courier'), ('Express');
+
+INSERT INTO shippers (name, account_number, address) VALUES
+                                                         ('MSI Electronics', '601019', 'Kunshan, China'),
+                                                         ('AsusTek Logistics', '701115', 'Taipei, Taiwan'),
+                                                         ('Dell Asia', '502332', 'Bangalore, India'),
+                                                         ('Lenovo Global', '304512', 'Beijing, China');
+
+INSERT INTO receivers (name, address) VALUES
+                                          ('Raya Distribution', 'Cairo, Egypt'),
+                                          ('ElAraby Group', 'Beni Suef, Egypt'),
+                                          ('Jumbo Electronics', 'Dubai, UAE'),
+                                          ('TechMart', 'Riyadh, Saudi Arabia'),
+                                          ('Metro Distribution', 'Berlin, Germany');
+
+
+-- SHIPMENTS
+INSERT INTO shipments (polica, shipper_id, receiver_id, content,
+                       actual_weight, volumetric_weight, package_type_id, piece_count,
+                       origin_country_id, destination_country_id, shipping_mode_id)
+VALUES
+    ('AB123456', 1, 1, 'Laptop Components', 1.8, 4.36, 1, 3, 1, 2, 1),
+    ('ZX987654', 2, 2, 'Monitors Batch', 5.4, 9.10, 4, 6, 1, 2, 2),
+    ('CD555222', 3, 3, 'Server Parts', 12.0, 14.8, 3, 2, 6, 3, 1),
+    ('LM222777', 4, 4, 'Laptops', 8.3, 10.2, 1, 4, 1, 4, 5),
+    ('PQ999888', 1, 5, 'GPU Units', 3.2, 4.0, 2, 5, 1, 5, 1),
+    ('YY111333', 2, 1, 'Motherboards', 6.0, 7.5, 1, 2, 6, 2, 3);
+
+-- Test Query
+SELECT
+    s.id AS shipment_id,
+    s.polica,
+    sh.name AS shipper,
+    r.name AS receiver,
+    sm.mode_name AS shipping_mode,
+    s.content,
+    s.actual_weight,
+    s.volumetric_weight,
+    s.piece_count,
+    co.name AS origin_country,
+    cd.name AS destination_country,
+    s.created_at
+FROM shipments s
+         JOIN shippers sh ON s.shipper_id = sh.id
+         JOIN receivers r ON s.receiver_id = r.id
+         JOIN countries co ON s.origin_country_id = co.id
+         JOIN countries cd ON s.destination_country_id = cd.id
+         JOIN shipping_modes sm ON s.shipping_mode_id = sm.id
+ORDER BY s.id;
