@@ -14,4 +14,4 @@ app.get("/health", (_req: any , res: any): any => res.json({ status: "OK" }));
 const PORT = process.env.PORT ? Number(process.env.PORT) : 5000;
 app.listen(PORT, () => {
     console.log(`Traxion backend listening on http://localhost:${PORT}`);
-})
+});
