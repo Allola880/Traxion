@@ -1,11 +1,10 @@
 import express from "express";
+import { createShipment, getShipment } from "../controllers/shipmentsController";
 
 export const shipmentsRouter = express.Router();
 
-shipmentsRouter.get("/:polica", (_req, res) => {
-    return res.status(501).json({ error: "Not implemented" });
-});
+// Create a new shipment
+shipmentsRouter.post("/", createShipment);
 
-shipmentsRouter.post("/", (_req, res) => {
-    return res.status(501).json({ error: "Not implemented" });
-});
+// Get a shipment by its polica ID
+shipmentsRouter.get("/:polica", getShipment);
